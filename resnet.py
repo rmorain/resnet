@@ -45,6 +45,7 @@ class Resnet:
                 # append to output
                 self.output[layer] = self.activation(net)
 
+
     def backprop(self, target):
 
         for back_layer in reversed(range(0, self.layers_count)):

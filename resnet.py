@@ -21,31 +21,41 @@ class Resnet:
         self.bias = np.ones((layers_count, node_count))     # Initialize to one
         self.layers_count = layers_count
         self.node_count = node_count
+        self.skip_connection = False
 
-    def forward(self):
+    def forward(self, input):
         '''
         output[layer] = activation(W[layer - 1][layer] * output[layer - 1] + bias[layer])
         '''
+
+        # initialize input
+        self.output[0] = input
 
         # For each layer
         for layer in range(1, self.layers_count):
             # Check if layer is the skip layer
             if layer != self.skip_connection:
-                net = self.weights[layer - 1]*self.output[layer - 1]# Compute the net of the layer
-                self.output[layer] = self.activation() # Get the output of the next layer
+                net = np.matmul(self.weights[layer - 1], self.output[layer - 1])# Compute the net of the layer
+                self.output[layer] = self.activation(net) # Get the output of the next layer
             else:
-                # Add the output of first layer
-        pass
+                # Add the output of first layer and apply activation
+                skip_output = self.activation(self.ouput[layer - 1] + self.data[0])
+                # multiply output with weights (not sure if nessisary)
+                net = np.matmul(self.weights[layer - 1], skip_output)
+                # append to output
+                self.output[layer] = self.activation(net)
 
     def backprop(self):
-        pass
+
+        # for layer in reversed(range(1, self.layers_count)):
+        #     fprime_net = self.ouput[]
 
     def activation(self, net):
         '''
         Computes a nonlinear activation function on the net to return the output
         :return:
         '''
-        pass
+        return 1 / (1 + np.e ** -net)
 
     def train(self):
         '''

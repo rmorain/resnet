@@ -45,10 +45,19 @@ class Resnet:
                 # append to output
                 self.output[layer] = self.activation(net)
 
-    def backprop(self):
+    def backprop(self, target):
 
-        # for layer in reversed(range(1, self.layers_count)):
-        #     fprime_net = self.ouput[]
+        for back_layer in reversed(range(0, self.layers_count)):
+            fprime_net = self.output[back_layer] * (1 - self.output[back_layer])
+
+            # output layer
+            if back_layer == 0:
+                # TODO: check the target is in correct np array format
+                self.error[back_layer] = ((target - self.output[back_layer]) * fprime_net)
+
+            # hidden layer
+            else:ss
+                self.error[back_layer] = (np.matmul(self.weights[back_layer].T, self.error[back_layer] * fprime_net))
 
     def activation(self, net):
         '''
@@ -64,4 +73,4 @@ class Resnet:
         '''
         for input in self.data:
             self.forward(input)
-            self.backprop()
+            self.backprop([0, 1, 0])

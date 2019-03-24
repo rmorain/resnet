@@ -22,6 +22,7 @@ class Resnet:
         self.layers_count = layers_count
         self.node_count = node_count
         self.skip_connection = False
+        self.learning_rate = .0001
 
     def forward(self, input):
         '''
@@ -45,10 +46,31 @@ class Resnet:
                 # append to output
                 self.output[layer] = self.activation(net)
 
-    def backprop(self):
 
-        # for layer in reversed(range(1, self.layers_count)):
-        #     fprime_net = self.ouput[]
+    def backprop(self, target):
+        # set up new weight array to update after calculations
+        updated_weights = np.ones((self.layers_count, self.node_count))
+        # TODO: check that the paramater to background, target is in correct np array format
+        # TODO: add bias
+        # TODO: check input to first hidden layer weight update. Weight between input and first layer?
+        # TODO: check unusual matrix sizes, will there be matrix missalignment?
+
+        for back_layer in reversed(range(0, self.layers_count)):
+            fprime_net = self.output[back_layer] * (1 - self.output[back_layer])
+
+            # output layer
+            if back_layer == self.layers_count - 1:
+                error = ((target - self.output[back_layer]) * fprime_net)
+                self.error[back_layer] = error
+
+            # hidden layer
+            else:
+                error = (np.matmul(self.weights[back_layer].T, self.error[back_layer + 1] * fprime_net))
+                self.error[back_layer] = error
+            delta_weights = self.learning_rate * self.error[back_layer] * self.output[back_layer]
+            updated_weights[back_layer] = self.weights[back_layer] + delta_weights
+
+        self.weights = updated_weights
 
     def activation(self, net):
         '''
@@ -64,4 +86,4 @@ class Resnet:
         '''
         for input in self.data:
             self.forward(input)
-            self.backprop()
+            self.backprop([1, 1, 1])

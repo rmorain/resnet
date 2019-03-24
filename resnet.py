@@ -22,6 +22,7 @@ class Resnet:
         self.layers_count = layers_count
         self.node_count = node_count
         self.skip_connection = False
+        self.learning_rate = .0001
 
     def forward(self, input):
         '''
@@ -57,8 +58,11 @@ class Resnet:
                 self.error[back_layer] = ((target - self.output[back_layer]) * fprime_net)
 
             # hidden layer
-            else:ss
+            else:
                 self.error[back_layer] = (np.matmul(self.weights[back_layer].T, self.error[back_layer] * fprime_net))
+            new_weights = self.learning_rate * (np.outer(self.error[back_layer], self.output[back_layer]))
+            updated_weights = self.weights[back_layer] + new_weights
+            self.weights[back_layer] = updated_weights
 
     def activation(self, net):
         '''

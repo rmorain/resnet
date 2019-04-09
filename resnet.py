@@ -4,7 +4,7 @@ class Resnet:
 
     # This is a simple resnet with a skip connection from the first layer to the output layer.
 
-    def __init__(self, data, layers_count, node_count):
+    def __init__(self, data, layers_count, node_count, skip_connection):
         '''
         data: numpy ndarray. Last column in array is targets
         weights: numpy ndarray. Contains the weights for each layer in each column.
@@ -21,7 +21,7 @@ class Resnet:
         self.bias = np.ones((layers_count, node_count))     # Initialize to one
         self.layers_count = layers_count
         self.node_count = node_count
-        self.skip_connection = False
+        self.skip_connection = skip_connection
         self.learning_rate = .0001
 
     def forward(self, input):
@@ -35,12 +35,16 @@ class Resnet:
         # For each layer
         for layer in range(1, self.layers_count):
             # Check if layer is the skip layer
-            if layer != self.skip_connection:
+            if layer in self.skip_connection:
+                is_skip_connection = True
+            else:
+                is_skip_connection = False
+            if layer != is_skip_connection:
                 net = np.matmul(self.weights[layer - 1], self.output[layer - 1])# Compute the net of the layer
                 self.output[layer] = self.activation(net) # Get the output of the next layer
             else:
                 # Add the output of first layer and apply activation
-                skip_output = self.activation(self.ouput[layer - 1] + self.data[0])
+                skip_output = self.activation(self.output[layer - 1] + self.data[0])
                 # multiply output with weights (not sure if nessisary)
                 net = np.matmul(self.weights[layer - 1], skip_output)
                 # append to output
@@ -49,7 +53,7 @@ class Resnet:
 
     def backprop(self, target):
         # set up new weight array to update after calculations
-        updated_weights = np.ones((self.layers_count, self.node_count))
+        updated_weights = np.ones((self.layers_count, self.node_count))ss
         # TODO: check that the paramater to background, target is in correct np array format
         # TODO: add bias
         # TODO: check input to first hidden layer weight update. Weight between input and first layer?
@@ -87,3 +91,4 @@ class Resnet:
         for input in self.data:
             self.forward(input)
             self.backprop([1, 1, 1])
+        print('done')
